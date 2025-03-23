@@ -29,7 +29,7 @@ map = map.replace(/[[]/g, '');
 map = map.replace(/]/g, '');
 map = map.replace(/\n/g, '');
 // map = '1111111000000111111111100000000011011111111111011111010100000000'
-// map = '1111111000000111111111100000000011011111000001010000010100000000'
+map = '1111111000000111111111100000000011011111000001010000010100000000'
 map = Array.from(map);
 return {obj: map, width: 8, heigth: 8};
 }
@@ -151,6 +151,10 @@ function bot(block, mapRaw){
         let iHeigth = Number(mapHeigth)-Number(blockHeigth)+1;
         let layer = {};
         let nextStep = false;
+        let probabMap = {
+            num: 0,
+            map: []
+        }
         
         //mencek apakah ada ruang yang cukup
         for(let l = 0; l < iHeigth; l++){
@@ -173,18 +177,28 @@ function bot(block, mapRaw){
                 }
                 
                 //check jika tidak ada ruang yang cukup
-                tmpBlock.map.map(function (ch, ci) {if(ch + Number(block.obj[ci]) > 1){nextStep = true}})
+                tmpBlock.map.map(function (ch, ci) {if(ch + Number(block.obj[ci]) > 1){
+                    nextStep = true;
+                }})
                 if(nextStep == false){
-                    mapRaw = putTile({x: i, y: l, map: mapRaw}, block)
                     iWidth = 0
                     iHeigth = 0
+                    let tmpMapRaw = JSON.parse(JSON.stringify(mapRaw))
+                    tmpMapRaw = putTile({x: i, y: l, map: tmpMapRaw}, block)
+                    probabMap.num++
+                    probabMap.map.push(tmpMapRaw)
+                    iWidth = 6
+                    iHeigth = 6
                 }
                 nextStep = false;
             }
         }
+        console.log(probabMap)
+        return probabMap;
     }
-    check();
-    return mapRaw;
+    let probabMap = check();
+    probabMap.map.map(i => printMap(i))
+    // return mapRaw;
     // printMap(mapRaw)
     
     // console.log('\n')
@@ -216,11 +230,7 @@ function putTile(coor, block){
     return map;
 }
 
-function botplay(block1, block2, block3, mapRaw){
-    
-}
-
-function delRowCol(mapRaw){
+function checkFull(mapRaw){
     let map = mapRaw.obj;
     let [mapWidth, mapHeigth] = [mapRaw.width, mapRaw.heigth]
     printMap(mapRaw)
@@ -250,12 +260,14 @@ function delRowCol(mapRaw){
         }
         checkHeigth = 0;
     }
-    del.map(i => map[i] = 0)
-    printMap(mapRaw)
-    // console.log(del)
-    // checkWidth = 0;
+    delFull(del, mapRaw);
 }
 
+function delFull(del, mapRaw){
+    let map = mapRaw.obj;
+    del.map(i => map[i] = 0)
+    printMap(mapRaw)
+}
 
 function test(){
     let map = new Template();
@@ -265,12 +277,12 @@ function test(){
     let block2 = new Tile(2, '111010')
     let block3 = new Tile(4, '1111')
     
-    delRowCol(makeMap());
+    // checkFull(makeMap());
     // console.log(block3)
 
-    // printMap(testmappp)
-    // console.log('\n')
-    // testmappp = bot(block1, testmappp)
+    printMap(testmappp)
+    console.log('\n')
+    testmappp = bot(block1, testmappp)
     // printMap(testmappp)
     // console.log('\n')
     // testmappp = bot(block2, testmappp)
