@@ -29,18 +29,20 @@ map = map.replace(/[[]/g, '');
 map = map.replace(/]/g, '');
 map = map.replace(/\n/g, '');
 // map = '1111111000000111111111100000000011011111111111011111010100000000'
-map = '1111111000000111111111100000000011011111000001010000010100000000'
+// map = '1111111000000111111111100000000011011111000001010000010100000000'
+// map = '1111111111111111111111111111111111111111111110001111100011111000'
 map = Array.from(map);
 return {obj: map, width: 8, heigth: 8};
 }
 
 
-function printMap(mapRaw){
+function printMap(mapRaw, tab = 0){
     let width = mapRaw.width;
     let map = mapRaw.map || mapRaw.obj;
     let coorY = 0;
     let [on, off] = ['■', ' ']
-    let teks = '[+]'
+    let teks = '\n';
+    teks += '[+]'
     for(let i = 0; i < width; i++){
         teks += `[${i}]`
     }
@@ -55,6 +57,21 @@ function printMap(mapRaw){
         }
         teks += `[${symbol}]`
     }
+    function addTab(tab = 0){
+        let tabTeks = ''
+        let tmparrTeks = Array.from(teks);
+        let arrTeks = JSON.parse(JSON.stringify(tmparrTeks))
+        for(let i=0; i<tab; i++){
+            tabTeks += '  '
+        }
+        for(let i=width; i>0; i--){
+            arrTeks.splice(((tmparrTeks.length/(width+1))*i)+1, 0, tabTeks);
+        }
+        arrTeks.splice(1, 0, tabTeks);
+        
+        teks = arrTeks.join('');
+    }
+    addTab(tab);
     console.log(teks)
 }
 
@@ -193,16 +210,11 @@ function bot(block, mapRaw){
                 nextStep = false;
             }
         }
-        console.log(probabMap)
         return probabMap;
     }
     let probabMap = check();
-    probabMap.map.map(i => printMap(i))
-    // return mapRaw;
-    // printMap(mapRaw)
-    
-    // console.log('\n')
-    // printMap(mapRaw)
+    probabMap.map.map(i => printMap(i));
+    return probabMap;
 }
 
 function putTile(coor, block){
@@ -260,7 +272,8 @@ function checkFull(mapRaw){
         }
         checkHeigth = 0;
     }
-    delFull(del, mapRaw);
+    return del;
+    // delFull(del, mapRaw);
 }
 
 function delFull(del, mapRaw){
@@ -276,13 +289,16 @@ function test(){
     let block1 = new Tile(3, '111111111')
     let block2 = new Tile(2, '111010')
     let block3 = new Tile(4, '1111')
+    printMap(testmappp)
     
     // checkFull(makeMap());
     // console.log(block3)
 
-    printMap(testmappp)
-    console.log('\n')
-    testmappp = bot(block1, testmappp)
+    // printMap(testmappp)
+    // console.log('\n')
+    // let probabMap = bot(block1, testmappp);
+    // console.log(checkFull(probabMap.map[1]));
+
     // printMap(testmappp)
     // console.log('\n')
     // testmappp = bot(block2, testmappp)
