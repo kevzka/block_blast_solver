@@ -1,4 +1,3 @@
-
 class Template{
     constructor(){
         [this.width, this.heigth] = [8, 8];
@@ -16,21 +15,21 @@ class Tile{
 
 function makeMap(){
     map = `
-[1][0][0][0][0][0][0][1]
-[0][1][0][0][0][0][0][1]
-[0][0][1][0][0][0][0][1]
-[0][0][0][1][0][0][0][1]
-[0][0][0][0][1][0][0][1]
-[0][0][0][0][0][1][0][1]
-[0][0][0][0][0][0][1][1]
-[1][1][1][1][1][1][1][1]`
+[1][1][0][0][0][1][0][0]
+[1][1][0][1][1][1][1][0]
+[1][1][0][1][1][1][1][0]
+[1][1][0][0][1][1][1][0]
+[1][0][0][1][1][0][0][0]
+[0][0][0][1][1][1][0][0]
+[0][0][0][0][1][1][0][0]
+[0][0][0][1][1][1][0][0]`
 // map = Array.from({length: width * heigth}, (v, k) => 0)
 map = map.replace(/[[]/g, '');
 map = map.replace(/]/g, '');
 map = map.replace(/\n/g, '');
 // map = '1111111000000111111111100000000011011111111111011111010100000000'
 // map = '1111111000000111111111100000000011011111000001010000010100000000'
-// map = '1111111111111111111111111111111111111111111110001111100011111000'
+// map = '0001110000011000111110001111111000111100000010001100011111010111'
 map = Array.from(map);
 return {obj: map, width: 8, heigth: 8};
 }
@@ -44,18 +43,18 @@ function printMap(mapRaw, tab = 0){
     let teks = '\n';
     teks += '[+]'
     for(let i = 0; i < width; i++){
-        teks += `[${i}]`
+        teks += [${i}]
     }
-    teks += `\n[${coorY}]`
+    teks += \n[${coorY}]
     for(let i in map){
         let symbol = (map[i] != 1) ? off : on;
         symbol = (map[i] > 1)? map[i] : symbol;
         // symbol = map[i];
         if((i)%width==0 && i != 0){
             coorY++
-            teks += `\n[${coorY}]`;
+            teks += \n[${coorY}];
         }
-        teks += `[${symbol}]`
+        teks += [${symbol}]
     }
     function addTab(tab = 0){
         let tabTeks = ''
@@ -104,7 +103,7 @@ function getVector(width, map){
             }
         }
         for(let i = 0; i < newWidth; i++){
-            tmp += `0`;
+            tmp += 0;
         }
         tmp2 = tmp + tmp2 + tmp;
         return tmp2;
@@ -166,6 +165,10 @@ function bot(block, mapRaw){
     function check(){
         let iWidth = Number(mapWidth)-Number(blockWidth)+1;
         let iHeigth = Number(mapHeigth)-Number(blockHeigth)+1;
+        
+        // console.log(iWidth,iHeigth)
+        // let itung = 0;
+        
         let layer = {};
         let nextStep = false;
         let probabMap = {
@@ -190,8 +193,13 @@ function bot(block, mapRaw){
                 }
                 let tmpBlock = {
                     map: layer[0],
-                    width: blockWidth
+                    width: blockWidth,
+                    x: i,
+                    y: l
                 }
+                // console.log(tmpBlock)
+                // itung++
+                // console.log(itung)
                 
                 //check jika tidak ada ruang yang cukup
                 tmpBlock.map.map(function (ch, ci) {if(ch + Number(block.obj[ci]) > 1){
@@ -202,10 +210,11 @@ function bot(block, mapRaw){
                     iHeigth = 0
                     let tmpMapRaw = JSON.parse(JSON.stringify(mapRaw))
                     tmpMapRaw = putTile({x: i, y: l, map: tmpMapRaw}, block)
+                    // printMap(tmpMapRaw, 1)
                     probabMap.num++
                     probabMap.map.push(tmpMapRaw)
-                    iWidth = 6
-                    iHeigth = 6
+                    iWidth = Number(mapWidth)-Number(blockWidth)+1;
+                    iHeigth = Number(mapHeigth)-Number(blockHeigth)+1;
                 }
                 nextStep = false;
             }
@@ -213,7 +222,7 @@ function bot(block, mapRaw){
         return probabMap;
     }
     let probabMap = check();
-    probabMap.map.map(i => printMap(i));
+    // probabMap.map.map(i => printMap(i));
     return probabMap;
 }
 
@@ -245,7 +254,7 @@ function putTile(coor, block){
 function checkFull(mapRaw){
     let map = mapRaw.obj;
     let [mapWidth, mapHeigth] = [mapRaw.width, mapRaw.heigth]
-    printMap(mapRaw)
+    // printMap(mapRaw)
     let checkWidth = 0;
     let checkHeigth = 0;
     let del = [];
@@ -286,10 +295,41 @@ function test(){
     let map = new Template();
     
     let testmappp = makeMap();
-    let block1 = new Tile(3, '111111111')
-    let block2 = new Tile(2, '111010')
-    let block3 = new Tile(4, '1111')
+    let block5 = new Tile(3, '111111111')
+    let block1 = new Tile(2, '111010')
+    let block2 = new Tile(4, '1111')
+    let block3 = new Tile(1, '1')
     printMap(testmappp)
+    
+    let probabBlock1 = bot(block1, testmappp);
+    probabBlock1.map.map(function (i) {
+      let probabBlock2 = bot(block2, i);
+      probabBlock2.map.map(function (j){
+        let probabBlock3 = bot(block3, j);
+        probabBlock3.map.map(function (k){
+          if(checkFull(i).length>0||checkFull(j).length>0||checkFull(k).length>0){
+            printMap(i,1);
+            printMap(j,2);
+            printMap(k,3);
+          }
+        })
+      })
+    })
+    
+    // let probabBlock1 = bot(block1, testmappp);
+    // printMap(probabBlock1.map[0], 0);
+    // testmappp = probabBlock1.map[0];
+    // let probabBlock2 = bot(block2, testmappp);
+    // printMap(probabBlock2.map[0], 1);
+    // testmappp = probabBlock2.map[0];
+    // let probabBlock3 = bot(block3, testmappp);
+    // probabBlock3.map.map(function(i){
+    //   if(checkFull(i).length > 0){
+    //     printMap(i,2)
+    //   }
+    // })
+    // console.log(probabBlock3)
+    // console.log(probabBlock1.map[1])
     
     // checkFull(makeMap());
     // console.log(block3)
@@ -316,4 +356,48 @@ function test(){
     
     // 6289525325777
 }
-test();
+// test();
+function done(){
+  let map = new Template();
+  
+    let testmappp = makeMap();
+    let block = [
+      new Tile(5, '11111'),
+      new Tile(3, '011110'),
+      new Tile(2, '1111')
+      ]
+    printMap(testmappp)
+    block.map((i) => printMap(i))
+    
+    let probabBlock2 = bot(block[1], testmappp);
+    // console.log(probabBlock2);
+    probabBlock2.map.map(function(i){
+      // if(checkFull(i).length>0){
+      //     printMap(i,1);
+      //   }
+        
+      let probabBlock3 = bot(block[2], i);
+      probabBlock3.map.map(function(j){
+        if(checkFull(i).length>0||checkFull(j).length>0){
+          printMap(i,1);
+          printMap(j, 2);
+        }
+      })
+    })
+    
+    // let probabBlock1 = bot(block1, testmappp);
+    // probabBlock1.map.map(function (i) {
+    //   let probabBlock2 = bot(block2, i);
+    //   probabBlock2.map.map(function (j){
+    //     let probabBlock3 = bot(block3, j);
+    //     probabBlock3.map.map(function (k){
+    //       if(checkFull(i).length>0||checkFull(j).length>0||checkFull(k).length>0){
+    //         printMap(i,1);
+    //         printMap(j,2);
+    //         printMap(k,3);
+    //       }
+    //     })
+    //   })
+    // })
+}
+done();
