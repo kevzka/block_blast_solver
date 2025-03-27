@@ -1,0 +1,127 @@
+<input type="file" id="upload" accept="image/*">
+<canvas id="canvas"></canvas>
+<div id="colord" style="background-color: white; width: 40px; height: 20px;"></div>
+<p>Warna RGB: <span id="color"></span></p>
+  <input id="posX" type="number">
+  <input id="posY" type="number">
+  <input id="submit" type="submit" value="">
+
+<script>
+  const upload = document.getElementById("upload");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  let file;
+  const colorDisplay = document.getElementById("color");
+  const colord = document.getElementById('colord');
+  const submit = document.getElementById('submit')
+
+  function getPos(){
+    let X = document.getElementById('posX').value;
+    let Y = document.getElementById('posY').value;
+    return [X, Y];
+  }
+  
+  function getColorData(file, numX = 1, numY = 1){
+    tmpposX = 35+((60*numX)-(60/2));
+    tmpposY = 281+((60*numY)-(60/2));
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      // Ambil warna di posisi (50, 50)
+      const pixel = ctx.getImageData(tmpposX, tmpposY, 1,1).data;
+      const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+
+      colorDisplay.textContent = rgb;
+      canvas.style.border = `5px solid ${rgb}`;
+      colord.style.backgroundColor = `${rgb}`
+      return rgb;
+    };
+  }
+
+  function arrColor(file){
+    if (!(file instanceof Blob)) {
+        console.error("Error: Parameter harus berupa File atau Blob.");
+        return;
+    }
+    let arrColorData = []
+    let bgcolor = ['rgb(23, 27, 54)', 'rgb(29, 35, 69)', 'rgb(30, 36, 70)']
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      
+      for(let i=0; i < 8; i++){
+        for(let j=0; j < 8; j++){
+          let tmpposX = 35+((60*(j+1))-(60/2));
+          let tmpposY = 281+((60*(i+1))-(60/2));
+          const pixel = ctx.getImageData(tmpposX, tmpposY, 1,1).data;
+          let data = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+          let push = (bgcolor.includes(data)) ? 0 : 1;
+          arrColorData.push(push);
+        }
+      }
+      console.log(arrColorData);
+      let tst = arrColorData.join('');
+      console.log(tst, 'ya');
+    };
+  }
+
+  upload.addEventListener("change", (event) => {
+    file = event.target.files[0];
+    if (!file) return;
+    // getColorData(file);
+    arrColor(file);
+  });
+
+  submit.addEventListener("click", (event) => {
+    let [x, y] = getPos();
+    getColorData(file, x, y)
+  })
+</script>
+
+
+<!-- <input type="file" id="upload" accept="image/*">
+<canvas id="canvas"></canvas>
+<p>Posisi: <span id="position"></span></p>
+<p>Warna RGB: <span id="color"></span></p>
+
+<script>
+  const upload = document.getElementById("upload");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const positionDisplay = document.getElementById("position");
+  const colorDisplay = document.getElementById("color");
+
+  let img = new Image();
+
+  upload.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+    };
+  });
+
+  canvas.addEventListener("click", (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+
+    positionDisplay.textContent = `(${Math.floor(x)}, ${Math.floor(y)})`;
+    colorDisplay.textContent = rgb;
+    canvas.style.border = `5px solid ${rgb}`;
+  });
+</script> -->
